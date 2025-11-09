@@ -1,0 +1,46 @@
+name: Multi-Platform Matrix Build (bcfd918)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build on Node v${{ matrix.node }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: [14, 16, 18]  # Three variants for parallel builds
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: matrix-bcfd918
+        run: echo "Building project using Node.js version ${{ matrix.node }}"
+
+      - name: Install dependencies
+        run: |
+          npm init -y
+          echo "console.log('Hello from Node version ${{ matrix.node }}')" > index.js
+
+      - name: Generate build artifact
+        run: |
+          echo "Build output for Node.js v${{ matrix.node }}" > build-output.txt
+          node index.js >> build-output.txt
+          echo "✅ Build complete for Node.js version ${{ matrix.node }}" >> build-output.txt
+          cat build-output.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-bcfd918-v${{ matrix.node }}
+          path: build-output.txt
